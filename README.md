@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 #### 为了更好的服务国内用户，renren-fast-vue仓库已迁移到Gitee，新的仓库地址 https://gitee.com/renrenio/renren-ui ，以后会在 https://gitee.com/renrenio/renren-ui 里面进行更新维护，感谢支持！ :smiley: 
 <br> 
 
@@ -23,4 +22,3 @@
 每个版本的详细更改都记录在[release notes](https://github.com/renrenio/renren-fast-vue/releases)中。
 =======
 # gulimall-vue
->>>>>>> origin/main
