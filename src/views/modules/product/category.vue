@@ -1,25 +1,45 @@
 <template>
   <el-tree
-    :data="data"
+    :data="menus"
     :props="defaultProps"
-    @node-click="handleNodeClick"
-  ></el-tree>
+    :expand-on-click-node="false"
+    show-checkbox="true"
+    node-key="catId"	
+  >
+    <span class="custom-tree-node" slot-scope="{ node, data }">
+      <span>{{ node.label }}</span>
+      <span>
+        <el-button
+          v-if="node.level <= 2"
+          type="text"
+          size="mini"
+          @click="() => append(data)"
+        >
+          添加
+        </el-button>
+        <el-button
+          v-if="node.childNodes.length == 0"
+          type="text"
+          size="mini"
+          @click="() => remove(node, data)"
+        >
+          删除
+        </el-button>
+      </span>
+    </span></el-tree
+  >
 </template>
 
 <script>
-//这里可以导入其他文件（比如：组件，工具 js，第三方插件 js，json文件，图片文件等等）
-//例如：import 《组件名称》 from '《组件路径》';
-
 export default {
-  //import 引入的组件需要注入到对象中才能使用
   components: {},
   props: {},
   data() {
     return {
-      data: [],
+      menus: [],
       defaultProps: {
         children: "children",
-        label: "label",
+        label: "name",
       },
     };
   },
@@ -36,10 +56,14 @@ export default {
       this.$http({
         url: this.$http.adornUrl("/product/category/list/tree"),
         method: "get",
-      }).then(date=>{
-        console.log("成功获取到菜单数据")
+      }).then(({ data }) => {
+        console.log("成功获取到菜单数据", data.data);
+        this.menus = data.data;
       });
     },
+    append(data) {},
+
+    remove(node, data) {},
   },
   //生命周期 - 创建完成（可以访问当前 this 实例）
   created() {
@@ -57,4 +81,12 @@ export default {
 };
 </script>
 <style scoped>
+.custom-tree-node {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  padding-right: 8px;
+}
 </style>
