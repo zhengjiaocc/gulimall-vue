@@ -3,8 +3,9 @@
     :data="menus"
     :props="defaultProps"
     :expand-on-click-node="false"
-    show-checkbox="true"
-    node-key="catId"	
+    show-checkbox
+    node-key="catId"
+    :default-expanded-keys="expandedKey"
   >
     <span class="custom-tree-node" slot-scope="{ node, data }">
       <span>{{ node.label }}</span>
@@ -36,6 +37,7 @@ export default {
   props: {},
   data() {
     return {
+      expandedKey:[],
       menus: [],
       defaultProps: {
         children: "children",
@@ -63,7 +65,36 @@ export default {
     },
     append(data) {},
 
-    remove(node, data) {},
+    remove(node, data) {
+      var ids = [data.catId];
+      this.$confirm(`是否删除【${data.name}】?`, "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(() => {
+          this.$http({
+            url: this.$http.adornUrl("/product/category/delete"),
+            method: "post",
+            data: this.$http.adornData(ids, false),
+          }).then(({ data }) => {
+            this.$message({
+              type: "success",
+              message: "菜单删除成功",
+            });
+            this.getMenus();
+            this.expandedKey=[node.parent.data.catId]
+          });
+          console.log("remove", "node:", node, "data:", data);
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消删除",
+          });
+        });
+      console.log("remove", "node:", node, "data:", data);
+    },
   },
   //生命周期 - 创建完成（可以访问当前 this 实例）
   created() {
@@ -81,12 +112,4 @@ export default {
 };
 </script>
 <style scoped>
-.custom-tree-node {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 14px;
-  padding-right: 8px;
-}
 </style>
