@@ -7,6 +7,8 @@
       show-checkbox
       node-key="catId"
       :default-expanded-keys="expandedKey"
+      draggable
+      :allow-drop="allowDrop"
     >
       <span class="custom-tree-node" slot-scope="{ node, data }">
         <span>{{ node.label }}</span>
@@ -64,6 +66,7 @@ export default {
   props: {},
   data() {
     return {
+      maxLevel: 0,
       dialogType: "",
       title: "",
       category: {
@@ -91,6 +94,33 @@ export default {
   watch: {},
   //方法集合
   methods: {
+    allowDrop(draggingNode, dropNode, type) {
+      // 打印参数以便调试
+      console.log("allowDrop", draggingNode, dropNode, type);
+      // 计算拖动节点与放置节点之间的最大级别差
+      this.countNodeLevel(draggingNode.data);
+      let deep = this.maxLevel - draggingNode.data.catLevel + 1;
+      // 这个deep其实就是拖动结束后，所在树的结点层级
+      // 根据放置类型，检查是否允许放置拖动节点
+      if (type == "inner") {
+        // 如果是在放置节点的内部，则深度为放置节点的级别加上拖动节点的深度
+        return deep + dropNode.level <= 3;
+      } else {
+        // 如果是在放置节点的外部，则深度为放置节点的父级别加上拖动节点的深度
+        return deep + dropNode.parent.level <= 3;
+      }
+    },
+
+    countNodeLevel(node) {
+      if (node.children != null && node.children.length > 0) {
+        for (let i = 0; i < node.children.length; i++) {
+          if (node.children[i].catLevel > this.maxLevel) {
+            this.maxLevel = node.children[i].catLevel;
+          }
+          this.countNodeLevel(node.children[i]);
+        }
+      }
+    },
     submitData() {
       if (this.dialogType == "add") {
         this.addCategory();
@@ -149,7 +179,7 @@ export default {
     append(data) {
       this.dialogType = "add";
       this.title = "添加分类";
-      this.category.name=""
+      this.category.name = "";
       this.dialogVisible = true;
       this.category.parentCid = data.catId;
       this.category.catLevel = data.catLevel * 1 + 1;
