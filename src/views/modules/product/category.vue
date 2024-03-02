@@ -1,32 +1,14 @@
 <template>
   <div>
-    <el-tree
-      :data="menus"
-      :props="defaultProps"
-      :expand-on-click-node="false"
-      show-checkbox
-      node-key="catId"
-      :default-expanded-keys="expandedKey"
-      draggable
-      :allow-drop="allowDrop"
-    >
+    <el-tree :data="menus" :props="defaultProps" :expand-on-click-node="false" show-checkbox node-key="catId"
+      :default-expanded-keys="expandedKey" draggable :allow-drop="allowDrop" @node-drop="handleDrop">
       <span class="custom-tree-node" slot-scope="{ node, data }">
         <span>{{ node.label }}</span>
         <span>
-          <el-button
-            v-if="node.level <= 2"
-            type="text"
-            size="mini"
-            @click="() => append(data)"
-          >
+          <el-button v-if="node.level <= 2" type="text" size="mini" @click="() => append(data)">
             添加
           </el-button>
-          <el-button
-            v-if="node.childNodes.length == 0"
-            type="text"
-            size="mini"
-            @click="() => remove(node, data)"
-          >
+          <el-button v-if="node.childNodes.length == 0" type="text" size="mini" @click="() => remove(node, data)">
             删除
           </el-button>
 
@@ -34,8 +16,7 @@
             修改
           </el-button>
         </span>
-      </span></el-tree
-    >
+      </span></el-tree>
 
     <el-dialog :title="title" :visible.sync="dialogVisible" width="30%">
       <el-form :model="category">
@@ -46,10 +27,7 @@
           <el-input v-model="category.icon" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="计量单位">
-          <el-input
-            v-model="category.productUnit"
-            autocomplete="off"
-          ></el-input>
+          <el-input v-model="category.productUnit" autocomplete="off"></el-input>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -121,6 +99,16 @@ export default {
         }
       }
     },
+    handleDrop(draggingNode, dropNode, dropType) {
+      console.log("handleDrop ", draggingNode, dropNode, dropType);
+      let pCid = 0;
+      let sibings = null;
+
+      if (dropType == "before" || dropType == "after") {
+        pCid = draggingNode.parent.data.catId;
+      }
+    },
+
     submitData() {
       if (this.dialogType == "add") {
         this.addCategory();
@@ -239,15 +227,15 @@ export default {
     this.getMenus();
   },
   //生命周期 - 挂载完成（可以访问 DOM 元素）
-  mounted() {},
-  beforeCreate() {}, //生命周期 - 创建之前
-  beforeMount() {}, //生命周期 - 挂载之前
-  beforeUpdate() {}, //生命周期 - 更新之前
-  updated() {}, //生命周期 - 更新之后
-  beforeDestroy() {}, //生命周期 - 销毁之前
-  destroyed() {}, //生命周期 - 销毁完成
-  activated() {}, //如果页面有 keep-alive 缓存功能，这个函数会触发
+  mounted() { },
+  beforeCreate() { }, //生命周期 - 创建之前
+  beforeMount() { }, //生命周期 - 挂载之前
+  beforeUpdate() { }, //生命周期 - 更新之前
+  updated() { }, //生命周期 - 更新之后
+  beforeDestroy() { }, //生命周期 - 销毁之前
+  destroyed() { }, //生命周期 - 销毁完成
+  activated() { }, //如果页面有 keep-alive 缓存功能，这个函数会触发
 };
 </script>
-<style scoped>
-</style>
+
+<style scoped></style>
