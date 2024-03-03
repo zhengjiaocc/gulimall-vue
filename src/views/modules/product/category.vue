@@ -44,6 +44,7 @@ export default {
   props: {},
   data() {
     return {
+      updateNodes: [],
       maxLevel: 0,
       dialogType: "",
       title: "",
@@ -82,10 +83,10 @@ export default {
       // 根据放置类型，检查是否允许放置拖动节点
       if (type == "inner") {
         // 如果是在放置节点的内部，则深度为放置节点的级别加上拖动节点的深度
-        return deep + dropNode.level <= 3;
+        return (deep + dropNode.level) <= 3;
       } else {
         // 如果是在放置节点的外部，则深度为放置节点的父级别加上拖动节点的深度
-        return deep + dropNode.parent.level <= 3;
+        return (deep + dropNode.parent.level) <= 3;
       }
     },
 
@@ -101,13 +102,73 @@ export default {
     },
     handleDrop(draggingNode, dropNode, dropType) {
       console.log("handleDrop ", draggingNode, dropNode, dropType);
+      //1、当前节点最新父节点id
       let pCid = 0;
-      let sibings = null;
+      let siblings = null;
 
       if (dropType == "before" || dropType == "after") {
-        pCid = draggingNode.parent.data.catId;
+        pCid = dropNode.parent.data.catId == undefined
+          ? 0
+          : dropNode.parent.data.catId;
+        siblings = dropNode.parent.childNodes;
+      } else {
+        pCid = dropNode.data.catId;
+        siblings = dropNode.childNodes
+
       }
+
+      //2、当前拖拽节点的最新顺序，
+      for (let i = 0; i < siblings.length; i++) {
+        {
+          if (siblings[i].data.catId == draggingNode.data.catId) {
+            //如果遍历的是当前正在拖拽的节点
+            let catLevel = draggingNode.level;
+            if (siblings[i].level != draggingNode.level) {
+              // 当前节点的层级发生变化
+              catLevel = siblings[i].level;
+              // 修改子节点的层级
+              this.updateChildNodeLevel(siblings[i])
+
+            }
+            this.updateNodes.push({ catId: siblings[i].data.catId, sort: i, parentCid: pCid, catLevel: catLevel })
+          } else {
+            this.updateNodes.push({ catId: siblings[i].data.catId, sort: i })
+          }
+
+
+        }
+      }
+
+      //3、当前拖拽节点的最新层级
+      console.log("updateNodes", this.updateNodes)
+      // 发送修改请求
+      this.$http({
+        url: this.$http.adornUrl('/product/category/update/sort'),
+        method: 'post',
+        data: this.$http.adornData(this.updateNodes, false)
+      }).then(({ data }) => {
+        this.$message({
+          message: "菜单排序修改成功",
+          type: "success",
+        })
+        this.getMenus();
+        this.expandedKey = [pCid]
+        this.updateNodes = []
+        this.maxLevel = 0;
+      });
     },
+    updateChildNodeLevel(node) {
+      if (node.childNodes.length > 0) {
+        for (let i = 0; i < node.childNodes.length; i++) {
+          var cNode = node.childNodes[i].data
+          this.updateNodes.push({ catid: cNode.catId, catLevel: node.childNodes[i].level });
+          this.updateChildNodeLevel(node.childNodes[i])
+        }
+      }
+
+
+    }
+    ,
 
     submitData() {
       if (this.dialogType == "add") {
