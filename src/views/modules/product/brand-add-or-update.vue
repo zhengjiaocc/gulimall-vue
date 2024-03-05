@@ -26,6 +26,8 @@
           v-model="dataForm.showStatus"
           active-color="#13ce66"
           inactive-color="#ff4949"
+          :active-value="1"
+          :inactive-value="0"
         >
         </el-switch>
       </el-form-item>
@@ -73,7 +75,7 @@ export default {
         showStatus: [
           {
             required: true,
-            message: "显示状态[0-不显示；1-显示]不能为空",
+            message: "显示状态不能为空",
             trigger: "blur",
           },
         ],

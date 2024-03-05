@@ -9,6 +9,7 @@
  */
 import Vue from 'vue'
 import {
+  Image,
   Pagination,
   Dialog,
   Autocomplete,
@@ -77,7 +78,7 @@ import {
   Message,
   Notification
 } from 'element-ui'
-
+Vue.use(Image)
 Vue.use(Pagination)
 Vue.use(Dialog)
 Vue.use(Autocomplete)
